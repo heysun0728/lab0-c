@@ -194,12 +194,70 @@ void q_reverse(queue_t *q)
 }
 
 /*
+ * Split the list pointed by head into 2 (l and r)
+ */
+void split(list_ele_t *head, list_ele_t **l, list_ele_t **r)
+{
+    list_ele_t *slow, *fast;
+    slow = head;
+    fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    *r = slow->next;
+    *l = head;
+    slow->next = NULL;
+}
+
+
+/*
+ * Merge 2 list in sorted order
+ */
+list_ele_t *merge(list_ele_t *l, list_ele_t *r)
+{
+    list_ele_t *head = NULL;
+    list_ele_t **tmp = &head;
+    while (l && r) {
+        if (strcmp(l->value, r->value) < 0) {
+            *tmp = l;
+            l = l->next;
+        } else {
+            *tmp = r;
+            r = r->next;
+        }
+        tmp = &((*tmp)->next);
+    }
+    if (l)
+        *tmp = l;  // l and r are already null-terminated
+    if (r)
+        *tmp = r;
+    return head;
+}
+
+/*
+ * Merge sort function
+ * Return the head pointer of sorted list.
+ */
+list_ele_t *m_sort(list_ele_t *head)
+{
+    if (!head || !head->next)  // if only 1 or 0 elements left in this list
+        return head;
+
+    list_ele_t *l = NULL, *r = NULL;
+    split(head, &l, &r);
+    return merge(m_sort(l), m_sort(r));
+}
+
+/*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || q->size < 2)
+        return;
+
+    q->head = m_sort(q->head);
 }
