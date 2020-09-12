@@ -133,9 +133,27 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
-    q->head = q->head->next;
+    if (!q || !q->head)
+        return false;
+
+    /* Copy the removed string to *sp */
+    list_ele_t *rmv = q->head;
+    if (sp) {
+        size_t vlen = strlen(rmv->value);
+        if (vlen > bufsize - 1)
+            vlen = bufsize - 1;
+        strncpy(sp, rmv->value, vlen);
+        sp[vlen] = '\0';
+    }
+
+    /* Update list information */
+    if (q->tail == rmv)
+        q->tail = NULL;
+    q->head = rmv->next;
+    q->size--;
+
+    list_ele_free(rmv);
+
     return true;
 }
 
@@ -159,8 +177,20 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (!q || q->size < 2)
+        return;
+
+    list_ele_t *e = q->head;
+    list_ele_t *nxt, *pre = NULL;
+
+    q->tail = e;
+    while (e) {
+        nxt = e->next;
+        e->next = pre;
+        pre = e;
+        e = nxt;
+    }
+    q->head = pre;
 }
 
 /*
